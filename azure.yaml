@@ -1,0 +1,35 @@
+name: payload-website
+services:
+  web:
+    language: ts
+    project: ./src/web
+    host: containerapp
+pipeline:
+  variables:
+    - AZURE_KEY_VAULT_NAME
+    - AZURE_COSMOS_CONNECTION_STRING_KEY
+    - DATABASE_NAME
+  secrets:
+    - PAYLOAD_SECRET
+# using predeploy hook for web until
+# https://github.com/Azure/azure-dev/issues/3546 is fixed
+hooks:
+  # Creates a temporary `.env.local` file for the build command. Vite will automatically use it during build.
+  # The expected/required values are mapped to the infrastructure outputs.
+  # .env.local is ignored by git, so it will not be committed if, for any reason, if deployment fails.
+  # see: https://vitejs.dev/guide/env-and-mode
+  # Note: Notice that dotenv must be a project dependency for this to work. See package.json.
+  predeploy:
+    windows:
+      shell: pwsh
+      run: 'echo "PAYLOAD_SECRET=""$env:PAYLOAD_SECRET""" > ./src/web/.env.local ; echo "DATABASE_URI=""$env:DATABASE_URI""" >> ./src/web/.env.local ; echo "DATABASE_NAME=""$env:DATABASE_NAME""" >> ./src/web/.env.local'
+    posix:
+      shell: sh
+      run: 'echo PAYLOAD_SECRET=\"$PAYLOAD_SECRET\" > ./src/web/.env.local && echo DATABASE_URI=\"$DATABASE_URI\" >> ./src/web/.env.local && echo DATABASE_NAME=\"$DATABASE_NAME\" >> ./src/web/.env.local'
+  postdeploy:
+    windows:
+      shell: pwsh
+      run: "rm ./src/web/.env.local"
+    posix:
+      shell: sh
+      run: "rm ./src/web/.env.local"

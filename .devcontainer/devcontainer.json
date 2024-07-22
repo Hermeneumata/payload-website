@@ -1,0 +1,37 @@
+{
+	"name": "Node.js & Mongo DB",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"EditorConfig.EditorConfig",
+				"esbenp.prettier-vscode",
+				"GitHub.vscode-github-actions",
+				"IronGeek.vscode-env",
+				"mongodb.mongodb-vscode",
+				"ms-azuretools.azure-dev",
+				"ms-azuretools.vscode-azurecontainerapps",
+				"ms-azuretools.vscode-bicep",
+				"ms-azuretools.vscode-cosmosdb",
+				"ms-azuretools.vscode-docker",
+				"ms-vscode.vscode-node-azure-pack",
+				"timonwong.shellcheck"
+			]
+		}
+	},
+	"features": {
+		"ghcr.io/azure/azure-dev/azd:0": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/azure-cli:1": {
+			"version": "latest",
+			"installBicep": true
+		}
+	},
+	"postCreateCommand": "bash .devcontainer/post-create-command.sh",
+	"hostRequirements": {
+		"memory": "8gb"
+}
+}
