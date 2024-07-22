@@ -62,6 +62,8 @@ jobs:
         run: |
           DATABASE_URI=$(az keyvault secret show --name ${{ vars.AZURE_COSMOS_CONNECTION_STRING_KEY }} --vault-name ${{ vars.AZURE_KEY_VAULT_NAME }} --query value -o tsv)
           echo "DATABASE_URI=$DATABASE_URI" >> $GITHUB_ENV
+          PAYLOAD_SECRET=$(az keyvault secret show --name PAYLOAD-SECRET --vault-name ${{ vars.AZURE_KEY_VAULT_NAME }} --query value -o tsv)
+          echo "PAYLOAD_SECRET=$PAYLOAD_SECRET" >> $GITHUB_ENV
 
       - name: Deploy Application
         run: azd deploy --no-prompt
@@ -69,6 +71,6 @@ jobs:
           AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          PAYLOAD_SECRET: ${{ env.PAYLOAD_SECRET }}
           DATABASE_URI: ${{ env.DATABASE_URI }}
           DATABASE_NAME: ${{ vars.DATABASE_NAME }}

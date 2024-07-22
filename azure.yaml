@@ -9,8 +9,6 @@ pipeline:
     - AZURE_KEY_VAULT_NAME
     - AZURE_COSMOS_CONNECTION_STRING_KEY
     - DATABASE_NAME
-  secrets:
-    - PAYLOAD_SECRET
 # using predeploy hook for web until
 # https://github.com/Azure/azure-dev/issues/3546 is fixed
 hooks:

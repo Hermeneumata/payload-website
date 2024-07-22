@@ -27,9 +27,6 @@ param containerRegistryHostSuffix string = 'azurecr.io'
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
-@secure()
-param payloadSecret string
-
 var abbrs = loadJsonContent('./abbreviations.json')
 var tags = { 'azd-env-name': environmentName }
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -90,7 +87,7 @@ module web './app/web.bicep' = {
     keyVaultName: keyVault.outputs.name
     location: location
     name: !empty(webContainerAppName) ? webContainerAppName : '${abbrs.appContainerApps}web-${resourceToken}'
-    payloadSecret: payloadSecret
+    payloadSecret: kv.getSecret('payload-secret')
     tags: tags
   }
 }
