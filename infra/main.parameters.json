@@ -18,7 +18,7 @@
       "value": "${CONTAINER_REGISTRY_HOST_SUFFIX=azurecr.io}"
     },
     "payloadSecret": {
-      "value": "${PAYLOAD_SECRET}"
+      "value": "${PAYLOAD_SECRET=''}"
     }
   }
 }

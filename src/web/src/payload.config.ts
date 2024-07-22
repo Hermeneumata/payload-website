@@ -96,7 +96,7 @@ export default buildConfig({
     url: process.env.DATABASE_URI,
     transactionOptions: false,
     connectOptions: {
-      dbName: process.env.DATABASE_NAME,
+      dbName: 'db',
     },
   }),
   // database-adapter-config-end
