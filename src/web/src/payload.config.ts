@@ -97,7 +97,6 @@ export default buildConfig({
     transactionOptions: false,
     connectOptions: {
       dbName: 'db',
-      autoIndex: true,
     },
   }),
   // database-adapter-config-end
