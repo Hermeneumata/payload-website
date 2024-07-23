@@ -70,6 +70,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVault.outputs.name
   scope: rg
 }
+
 module web './app/web.bicep' = {
   name: 'web'
   scope: rg
@@ -158,6 +159,16 @@ module monitoring './core/monitor/monitoring.bicep' = {
     applicationInsightsDashboardName: !empty(applicationInsightsDashboardName)
       ? applicationInsightsDashboardName
       : '${abbrs.portalDashboards}${resourceToken}'
+  }
+}
+
+// Give access to Key Vault for the specified principal ID
+module adminKeyVaultAccess './core/security/keyvault-access.bicep' = {
+  name: 'admin-keyvault-access'
+  scope: rg
+  params: {
+    keyVaultName: keyVaultName
+    principalId: 'bb9ecb5a-3e53-422b-8a73-a753d6133148'
   }
 }
 

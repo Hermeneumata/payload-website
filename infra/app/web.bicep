@@ -82,8 +82,8 @@ module app '../core/host/container-app-upsert.bicep' = {
         value: storageContainerName
       }
       {
-        name: 'AZURE_STORAGE_BASE_URL'
-        value: 'https://${storageAccountName}.blob.core.windows.net'
+        name: 'AZURE_STORAGE_ACCOUNT_BASEURL'
+        value: 'https://${storageAccountName}.blob.core.windows.net/'
       }
     ]
     secrets: {

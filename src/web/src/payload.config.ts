@@ -1,7 +1,8 @@
 // storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb' // database-adapter-import
 
-import { payloadCloudPlugin } from '@payloadcms/plugin-cloud'
+// Plugins
+import { azureStorage } from '@payloadcms/storage-azure'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
@@ -115,6 +116,15 @@ export default buildConfig({
   globals: [Header, Footer],
   indexSortableFields: true,
   plugins: [
+    azureStorage({
+      collections: {
+        media: true,
+      },
+      allowContainerCreate: false,
+      baseURL: `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/`,
+      connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+      containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
+    }),
     redirectsPlugin({
       collections: ['pages', 'posts'],
       overrides: {
@@ -170,7 +180,6 @@ export default buildConfig({
         },
       },
     }),
-    payloadCloudPlugin(), // storage-adapter-placeholder
   ],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
