@@ -162,16 +162,6 @@ module monitoring './core/monitor/monitoring.bicep' = {
   }
 }
 
-// Give access to Key Vault for the specified principal ID
-module adminKeyVaultAccess './core/security/keyvault-access.bicep' = {
-  name: 'admin-keyvault-access'
-  scope: rg
-  params: {
-    keyVaultName: keyVaultName
-    principalId: 'bb9ecb5a-3e53-422b-8a73-a753d6133148'
-  }
-}
-
 output AZURE_COSMOS_CONNECTION_STRING_KEY string = cosmos.outputs.connectionStringKey
 output AZURE_COSMOS_DATABASE_NAME string = cosmos.outputs.databaseName
 
