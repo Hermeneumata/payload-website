@@ -9,6 +9,9 @@ pipeline:
     - AZURE_KEY_VAULT_NAME
     - AZURE_COSMOS_CONNECTION_STRING_KEY
     - DATABASE_NAME
+    - AZURE_STORAGE_CONNECTION_STRING_KEY
+    - AZURE_STORAGE_CONTAINER_NAME
+    - AZURE_STORAGE_ACCOUNT_NAME
 # using predeploy hook for web until
 # https://github.com/Azure/azure-dev/issues/3546 is fixed
 hooks:

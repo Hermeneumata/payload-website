@@ -9,6 +9,7 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
+param azureStorageContainerName string = 'media'
 param applicationInsightsDashboardName string = ''
 param applicationInsightsName string = ''
 param containerAppsEnvironmentName string = ''
@@ -18,6 +19,7 @@ param cosmosDatabaseName string = ''
 param keyVaultName string = ''
 param logAnalyticsName string = ''
 param resourceGroupName string = ''
+param storageAccountName string = ''
 param webContainerAppName string = ''
 param websiteExists bool = false
 
@@ -80,14 +82,17 @@ module web './app/web.bicep' = {
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryHostSuffix: containerRegistryHostSuffix
     containerRegistryName: containerApps.outputs.registryName
+    cosmosConnectionString: kv.getSecret(cosmos.outputs.connectionStringKey)
     databaseName: cosmos.outputs.databaseName
-    databaseUri: kv.getSecret(cosmos.outputs.connectionStringKey)
     exists: websiteExists
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}web-${resourceToken}'
     keyVaultName: keyVault.outputs.name
     location: location
     name: !empty(webContainerAppName) ? webContainerAppName : '${abbrs.appContainerApps}web-${resourceToken}'
     payloadSecret: kv.getSecret('payload-secret')
+    storageAccountName: storageAccount.outputs.name
+    storageConnectionString: kv.getSecret(storageAccount.outputs.connectionStringKey)
+    storageContainerName: azureStorageContainerName
     tags: tags
   }
 }
@@ -102,6 +107,24 @@ module cosmos './app/db.bicep' = {
     location: location
     tags: tags
     keyVaultName: keyVault.outputs.name
+  }
+}
+
+// Storage account
+module storageAccount './core/storage/storage-account.bicep' = {
+  name: 'storage-account'
+  scope: rg
+  params: {
+    name: !empty(storageAccountName) ? storageAccountName : '${abbrs.storageStorageAccounts}${resourceToken}'
+    location: location
+    tags: tags
+    keyVaultName: keyVault.outputs.name
+    containers: [
+      {
+        name: azureStorageContainerName
+        accessType: 'blob'
+      }
+    ]
   }
 }
 
@@ -140,6 +163,10 @@ module monitoring './core/monitor/monitoring.bicep' = {
 
 output AZURE_COSMOS_CONNECTION_STRING_KEY string = cosmos.outputs.connectionStringKey
 output AZURE_COSMOS_DATABASE_NAME string = cosmos.outputs.databaseName
+
+output AZURE_STORAGE_ACCOUNT_NAME string = storageAccount.outputs.name
+output AZURE_STORAGE_CONTAINER_NAME string = azureStorageContainerName
+output AZURE_STORAGE_CONNECTION_STRING_KEY string = storageAccount.outputs.connectionStringKey
 
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
 output APPLICATIONINSIGHTS_NAME string = monitoring.outputs.applicationInsightsName

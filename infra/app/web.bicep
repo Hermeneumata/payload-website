@@ -10,12 +10,16 @@ param containerRegistryName string
 param keyVaultName string
 param serviceName string = 'web'
 param exists bool
+param databaseName string
+param storageContainerName string
+param storageAccountName string
 
 @secure()
 param payloadSecret string
 @secure()
-param databaseUri string
-param databaseName string
+param storageConnectionString string
+@secure()
+param cosmosConnectionString string
 
 resource webIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
@@ -67,12 +71,25 @@ module app '../core/host/container-app-upsert.bicep' = {
       }
       {
         name: 'DATABASE_URI'
-        secretRef: 'database-uri'
+        secretRef: 'cosmos-connection-string'
+      }
+      {
+        name: 'AZURE_STORAGE_CONNECTION_STRING'
+        secretRef: 'storage-connection-string'
+      }
+      {
+        name: 'AZURE_STORAGE_CONTAINER_NAME'
+        value: storageContainerName
+      }
+      {
+        name: 'AZURE_STORAGE_BASE_URL'
+        value: 'https://${storageAccountName}.blob.core.windows.net'
       }
     ]
     secrets: {
       'payload-secret': payloadSecret
-      'database-uri': databaseUri
+      'cosmos-connection-string': cosmosConnectionString
+      'storage-connection-string': storageConnectionString
     }
   }
 }

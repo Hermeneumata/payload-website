@@ -3,10 +3,14 @@ param name string
 param location string = resourceGroup().location
 param tags object = {}
 
+param connectionStringKey string = 'AZURE-STORAGE-CONNECTION-STRING'
+param keyVaultName string
+
 @allowed([
   'Cool'
   'Hot'
-  'Premium' ])
+  'Premium'
+])
 param accessTier string = 'Hot'
 param allowBlobPublicAccess bool = true
 param allowCrossTenantReplication bool = true
@@ -15,7 +19,7 @@ param containers array = []
 param corsRules array = []
 param defaultToOAuthAuthentication bool = false
 param deleteRetentionPolicy object = {}
-@allowed([ 'AzureDnsZone', 'Standard' ])
+@allowed(['AzureDnsZone', 'Standard'])
 param dnsEndpointType string = 'Standard'
 param files array = []
 param kind string = 'StorageV2'
@@ -28,7 +32,7 @@ param networkAcls object = {
   bypass: 'AzureServices'
   defaultAction: 'Allow'
 }
-@allowed([ 'Enabled', 'Disabled' ])
+@allowed(['Enabled', 'Disabled'])
 param publicNetworkAccess string = 'Enabled'
 param sku object = { name: 'Standard_LRS' }
 
@@ -59,12 +63,14 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
       }
       deleteRetentionPolicy: deleteRetentionPolicy
     }
-    resource container 'containers' = [for container in containers: {
-      name: container.name
-      properties: {
-        publicAccess: contains(container, 'publicAccess') ? container.publicAccess : 'None'
+    resource container 'containers' = [
+      for container in containers: {
+        name: container.name
+        properties: {
+          publicAccess: contains(container, 'publicAccess') ? container.publicAccess : 'None'
+        }
       }
-    }]
+    ]
   }
 
   resource fileServices 'fileServices' = if (!empty(files)) {
@@ -79,15 +85,15 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 
   resource queueServices 'queueServices' = if (!empty(queues)) {
     name: 'default'
-    properties: {
-
-    }
-    resource queue 'queues' = [for queue in queues: {
-      name: queue.name
-      properties: {
-        metadata: {}
+    properties: {}
+    resource queue 'queues' = [
+      for queue in queues: {
+        name: queue.name
+        properties: {
+          metadata: {}
+        }
       }
-    }]
+    ]
   }
 
   resource tableServices 'tableServices' = if (!empty(tables)) {
@@ -96,6 +102,19 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
+resource storageConnectionString 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
+  name: connectionStringKey
+  properties: {
+    value: 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${storage.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+  }
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: keyVaultName
+}
+
+output connectionStringKey string = connectionStringKey
 output id string = storage.id
 output name string = storage.name
 output primaryEndpoints object = storage.properties.primaryEndpoints
